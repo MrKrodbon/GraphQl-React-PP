@@ -1,28 +1,23 @@
-import { VStack } from "@chakra-ui/react";
-import { Spinner } from "@chakra-ui/react";
-import { useQuery } from "@apollo/client";
 
-import { ALL_TODO } from "../apollo/todos";
-import TodoItem from "./TodoItem";
+import { Spinner } from "@chakra-ui/react";
+import { useMutation, useQuery,useLazyQuery } from "@apollo/client";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { createClient } from "graphql-ws";
 import TotalCount from "./TotalCount";
+import { useState } from "react";
+import Messages from "./GetTodoFromSub";
+
+
+
 
 const TodoList = () => {
-  const { loading, error, data } = useQuery(ALL_TODO);
+  const { PubSub } = require("graphql-subscriptions");
 
-  if (loading) {
-    return <Spinner />;
-  }
 
-  if (error) {
-    return <h2>error...</h2>;
-  }
+  
   return (
     <>
-      <VStack spacing={2} mt={4}>
-        {data.todos.map((todo) => (
-          <TodoItem key={todo.id} {...todo} />
-        ))}
-      </VStack>
+      <Messages></Messages>
       <TotalCount />
     </>
   );

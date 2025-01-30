@@ -1,22 +1,44 @@
 import { useState } from "react";
-import { Button, FormControl, Input } from "@chakra-ui/react";
+import { Button, FormControl, Input, Spinner } from "@chakra-ui/react";
 import { useMutation } from "@apollo/client";
 import { ADD_TODO, ALL_TODO } from "../apollo/todos";
 
 const AddTodo = () => {
   const [text, setText] = useState("");
-  const [addTodo, { loading, error, data }] = useMutation(ADD_TODO);
+  const [addTodo, { loading, error, data }] = useMutation(ADD_TODO,{
+    //update cache by hand
+    // update(cache,{data:{newTodo}}){
+    //   //docomposing todos from cache
+    //   const {todos} = cache.readQuery({query: ALL_TODO})
+
+    //   //write to cach new todo
+    //   cache.writeQuery({
+    //     query: ALL_TODO,
+    //     data: {
+    //       todos: [newTodo, ...todos]
+    //     }
+    //   })
+    // }
+
+    update(cache,{data:{newTodo}}){
+      const {todos} = cache.readQuery({query:ALL_TODO})
+
+      cache.writeQuery({query: ALL_TODO,data:{todos: [newTodo, ...todos]}})
+    }
+
+    
+  });
 
   const handleAddTodo = () => {
-    if (text.trim.length) {
+    if(text.trim().length){
       addTodo({
-        variables: {
+        variables:{
           title: text,
           completed: false,
-          user_id: 123,
-        },
-      });
-      setText("");
+          userId: 123
+        }
+      })
+      setText('');
     }
   };
 
@@ -26,6 +48,10 @@ const AddTodo = () => {
 
   if (error) {
     return <h2>Error...</h2>;
+  }
+
+  if(loading){
+    <Spinner/>
   }
 
   return (
